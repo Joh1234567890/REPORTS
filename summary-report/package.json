@@ -1,0 +1,21 @@
+{
+  "name": "insurance-stats-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.5",
+    "dayjs": "^1.11.13",
+    "node-fetch": "^2.7.0",
+    "pdfkit": "^0.17.1",
+    "pdfkit-table": "^0.1.99"
+  }
+}

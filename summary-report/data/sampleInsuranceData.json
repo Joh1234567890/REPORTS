@@ -1,0 +1,230 @@
+[
+  {
+    "_id": {
+      "$oid": "6893caba544a9ccfe4e4f43a"
+    },
+    "address": "ILALA MAIN ROAD",
+    "insurerName": "The Heritage Insurance Company Tanzania Limited",
+    "startDate": {
+      "$date": "2025-08-06T21:35:54.742Z"
+    },
+    "endDate": {
+      "$date": "2026-08-05T21:35:54.742Z"
+    },
+    "insuranceLabel": "private_car",
+    "isComprehensive": false,
+    "value": null,
+    "seats": 5,
+    "insuredName": "FAREED SHAABAN SEIF",
+    "platform": "WhatsApp",
+    "vehicleInfo": {
+      "registrationNumber": "T125BAC",
+      "chassisNumber": "JTEHT05J102030989",
+      "make": "Toyota",
+      "model": "JTEHT05J",
+      "type": "Station wagon",
+      "color": "Silver",
+      "engineNumber": "2UZ9062231",
+      "cc": "4686",
+      "seatingCapacity": "5",
+      "manufactureYear": "2002",
+      "ownerName": "FAREED SHAABAN SEIF",
+      "ownerCategory": "Sole Proprietor",
+      "fuelType": "Petrol"
+    },
+    "customerType": "corporate",
+    "idNumber": "140358741",
+    "usedPhoneNumber": "255769333382",
+    "clientID": {
+      "$oid": "6874999ba04daeff8c7f756c"
+    },
+    "paymentMethod": "Mobile Money",
+    "mobileProvider": "M-Pesa",
+    "premium": 100000,
+    "vat": 18000,
+    "total": 118000,
+    "status": "processing",
+    "remark": "Awaiting payment confirmation",
+    "reason": "payment",
+    "createdAt": {
+      "$date": "2025-08-06T21:35:54.742Z"
+    },
+    "deleteAt": {
+      "$date": "2025-08-11T21:35:54.742Z"
+    },
+    "dueNow": 118000,
+    "paymentNumber": "+255765029000",
+    "requestSentAt": {
+      "$date": "2025-08-06T21:35:54.742Z"
+    },
+    "paymentReference": "HIEBM21AW7",
+    "lastPolledAt": {
+      "$date": "2025-08-06T21:40:50.017Z"
+    },
+    "processedAt": {
+      "$date": "2025-08-06T21:40:54.601Z"
+    },
+    "transactionData": {
+      "ReceiptNo": "B100-202507615",
+      "AssuredCode": "CC0042885",
+      "CustomerCode": "CC0042885",
+      "PolicyNo": "P/100/1001/2025/00126",
+      "TaxInvoiceNumber": "DN1002025073",
+      "TaxInvoiceDate": "2025-07-30 17:10:43",
+      "EsdData": "3214",
+      "ZNumber": "3214",
+      "DebitNoteNo": "DN1753424238405",
+      "BrokerCode": "GAL001",
+      "RiskDetails": [
+        {
+          "RegistrationNumber": "T789CBD",
+          "RiskNoteNumber": "R4NVJTN",
+          "TiraStickerNumber": "123-456-789",
+          "TiraCoverNoteReferenceNumber": "123-456-78910"
+        }
+      ]
+    },
+    "coverNote": "insurance/coverNotes/1754516509237 - T125BAC.pdf",
+    "receipt": "insurance/receipts/1754516509237 - T125BAC.pdf"
+  },
+  {
+    "_id": { "$oid": "6893caba544a9ccfe4e4f43b" },
+    "address": "KARIAKOO STREET",
+    "insurerName": "Jubilee Insurance Company",
+    "startDate": { "$date": "2025-08-10T09:00:00.000Z" },
+    "endDate": { "$date": "2026-08-09T09:00:00.000Z" },
+    "insuranceLabel": "commercial",
+    "isComprehensive": true,
+    "value": null,
+    "seats": 2,
+    "insuredName": "ACME LOGISTICS",
+    "platform": "Mobile App",
+    "vehicleInfo": {
+      "registrationNumber": "T900XYZ",
+      "chassisNumber": "JTEHT05J102030990",
+      "make": "ISUZU",
+      "model": "NPR",
+      "type": "Truck",
+      "color": "White",
+      "engineNumber": "2UZ9062232",
+      "cc": "3000",
+      "seatingCapacity": "2",
+      "manufactureYear": "2022",
+      "ownerName": "ACME LOGISTICS",
+      "ownerCategory": "Company",
+      "fuelType": "Diesel"
+    },
+    "customerType": "corporate",
+    "idNumber": "140358742",
+    "usedPhoneNumber": "255700000001",
+    "clientID": { "$oid": "6874999ba04daeff8c7f756d" },
+    "paymentMethod": "Bank Transfer",
+    "mobileProvider": "",
+    "premium": 150000,
+    "vat": 27000,
+    "total": 177000,
+    "status": "active",
+    "remark": "Paid in full",
+    "reason": "renewal",
+    "createdAt": { "$date": "2025-08-10T09:00:00.000Z" },
+    "deleteAt": { "$date": "2025-08-15T09:00:00.000Z" },
+    "dueNow": 0,
+    "paymentNumber": "+255700000001",
+    "requestSentAt": { "$date": "2025-08-10T09:00:00.000Z" },
+    "paymentReference": "JUB20250810",
+    "lastPolledAt": { "$date": "2025-08-10T09:05:00.000Z" },
+    "processedAt": { "$date": "2025-08-10T09:10:00.000Z" },
+    "transactionData": {
+      "ReceiptNo": "B100-202507616",
+      "AssuredCode": "CC0042886",
+      "CustomerCode": "CC0042886",
+      "PolicyNo": "P/100/1001/2025/00127",
+      "TaxInvoiceNumber": "DN1002025074",
+      "TaxInvoiceDate": "2025-08-10 09:00:00",
+      "EsdData": "3215",
+      "ZNumber": "3215",
+      "DebitNoteNo": "DN1753424238406",
+      "BrokerCode": "GAL002",
+      "RiskDetails": [
+        {
+          "RegistrationNumber": "T900XYZ",
+          "RiskNoteNumber": "R4NVJTO",
+          "TiraStickerNumber": "124-456-789",
+          "TiraCoverNoteReferenceNumber": "124-456-78910"
+        }
+      ]
+    },
+    "coverNote": "insurance/coverNotes/1754516509238 - T900XYZ.pdf",
+    "receipt": "insurance/receipts/1754516509238 - T900XYZ.pdf"
+  },
+  {
+    "_id": { "$oid": "6893caba544a9ccfe4e4f43c" },
+    "address": "UPANGA ROAD",
+    "insurerName": "Alliance Insurance",
+    "startDate": { "$date": "2025-08-12T11:00:00.000Z" },
+    "endDate": { "$date": "2026-08-11T11:00:00.000Z" },
+    "insuranceLabel": "motorcycle",
+    "isComprehensive": false,
+    "value": null,
+    "seats": 1,
+    "insuredName": "JOHN DOE",
+    "platform": "Agent",
+    "vehicleInfo": {
+      "registrationNumber": "T123MOTO",
+      "chassisNumber": "JTEHT05J102030991",
+      "make": "HONDA",
+      "model": "CBF125",
+      "type": "Motorcycle",
+      "color": "Red",
+      "engineNumber": "2UZ9062233",
+      "cc": "125",
+      "seatingCapacity": "1",
+      "manufactureYear": "2023",
+      "ownerName": "JOHN DOE",
+      "ownerCategory": "Individual",
+      "fuelType": "Petrol"
+    },
+    "customerType": "individual",
+    "idNumber": "140358743",
+    "usedPhoneNumber": "255700000002",
+    "clientID": { "$oid": "6874999ba04daeff8c7f756e" },
+    "paymentMethod": "Cash",
+    "mobileProvider": "",
+    "premium": 200000,
+    "vat": 36000,
+    "total": 236000,
+    "status": "processing",
+    "remark": "Awaiting payment",
+    "reason": "new",
+    "createdAt": { "$date": "2025-08-12T11:00:00.000Z" },
+    "deleteAt": { "$date": "2025-08-17T11:00:00.000Z" },
+    "dueNow": 236000,
+    "paymentNumber": "+255700000002",
+    "requestSentAt": { "$date": "2025-08-12T11:00:00.000Z" },
+    "paymentReference": "ALL20250812",
+    "lastPolledAt": { "$date": "2025-08-12T11:05:00.000Z" },
+    "processedAt": { "$date": "2025-08-12T11:10:00.000Z" },
+    "transactionData": {
+      "ReceiptNo": "B100-202507617",
+      "AssuredCode": "CC0042887",
+      "CustomerCode": "CC0042887",
+      "PolicyNo": "P/100/1001/2025/00128",
+      "TaxInvoiceNumber": "DN1002025075",
+      "TaxInvoiceDate": "2025-08-12 11:00:00",
+      "EsdData": "3216",
+      "ZNumber": "3216",
+      "DebitNoteNo": "DN1753424238407",
+      "BrokerCode": "GAL003",
+      "RiskDetails": [
+        {
+          "RegistrationNumber": "T123MOTO",
+          "RiskNoteNumber": "R4NVJTP",
+          "TiraStickerNumber": "125-456-789",
+          "TiraCoverNoteReferenceNumber": "125-456-78910"
+        }
+      ]
+    },
+    "coverNote": "insurance/coverNotes/1754516509239 - T123MOTO.pdf",
+    "receipt": "insurance/receipts/1754516509239 - T123MOTO.pdf"
+  }
+]

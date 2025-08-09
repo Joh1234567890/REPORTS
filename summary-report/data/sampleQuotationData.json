@@ -1,0 +1,108 @@
+[
+  {
+    "_id": {
+      "$oid": "6893dd6272555781e26f11cf"
+    },
+    "fileName": "insurance/quotations/1754520904254 - Quotation - #11.pdf",
+    "clientID": {
+      "$oid": "6874999ba04daeff8c7f756c"
+    },
+    "usedPhoneNumber": null,
+    "number": 11,
+    "quotationNumber": "11",
+    "startingCoverDate": {
+      "$date": "2025-08-06T22:55:04.254Z"
+    },
+    "platform": "Website",
+    "via": "Manual",
+    "premium": 100000,
+    "vat": 18000,
+    "total": 118000,
+    "items": [
+      {
+        "insuranceLabel": "private_car",
+        "plateNumber": "T830DZD",
+        "isComprehensive": false,
+        "value": "",
+        "seats": "",
+        "vehicleInfo": {
+          "ownerName": "HIGHLAND ESTATES LIMITED  ",
+          "manufactureYear": "2021",
+          "make": "FAW",
+          "model": "CA4181P2K15T1YA80"
+        }
+      }
+    ],
+    "status": "active",
+    "createdAt": {
+      "$date": "2025-08-06T22:55:04.254Z"
+    },
+    "deleteAt": {
+      "$date": "2025-08-07T22:55:04.254Z"
+    }
+  },
+  {
+    "_id": { "$oid": "6893dd6272555781e26f11d0" },
+    "fileName": "insurance/quotations/1754520904255 - Quotation - #12.pdf",
+    "clientID": { "$oid": "6874999ba04daeff8c7f756d" },
+    "usedPhoneNumber": "255700000001",
+    "number": 12,
+    "quotationNumber": "12",
+    "startingCoverDate": { "$date": "2025-08-10T10:00:00.000Z" },
+    "platform": "Mobile App",
+    "via": "Online",
+    "premium": 150000,
+    "vat": 27000,
+    "total": 177000,
+    "items": [
+      {
+        "insuranceLabel": "commercial",
+        "plateNumber": "T900XYZ",
+        "isComprehensive": true,
+        "value": "",
+        "seats": "2",
+        "vehicleInfo": {
+          "ownerName": "ACME LOGISTICS",
+          "manufactureYear": "2022",
+          "make": "ISUZU",
+          "model": "NPR"
+        }
+      }
+    ],
+    "status": "pending",
+    "createdAt": { "$date": "2025-08-10T10:00:00.000Z" },
+    "deleteAt": { "$date": "2025-08-11T10:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "6893dd6272555781e26f11d1" },
+    "fileName": "insurance/quotations/1754520904256 - Quotation - #13.pdf",
+    "clientID": { "$oid": "6874999ba04daeff8c7f756e" },
+    "usedPhoneNumber": "255700000002",
+    "number": 13,
+    "quotationNumber": "13",
+    "startingCoverDate": { "$date": "2025-08-12T12:00:00.000Z" },
+    "platform": "Agent",
+    "via": "Referral",
+    "premium": 200000,
+    "vat": 36000,
+    "total": 236000,
+    "items": [
+      {
+        "insuranceLabel": "motorcycle",
+        "plateNumber": "T123MOTO",
+        "isComprehensive": false,
+        "value": "",
+        "seats": "1",
+        "vehicleInfo": {
+          "ownerName": "JOHN DOE",
+          "manufactureYear": "2023",
+          "make": "HONDA",
+          "model": "CBF125"
+        }
+      }
+    ],
+    "status": "active",
+    "createdAt": { "$date": "2025-08-12T12:00:00.000Z" },
+    "deleteAt": { "$date": "2025-08-13T12:00:00.000Z" }
+  }
+]

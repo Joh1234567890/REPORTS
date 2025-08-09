@@ -1,0 +1,219 @@
+[
+  {
+    "_id": {
+      "$oid": "6870dc81c11579560826c8d6"
+    },
+    "policyID": {
+      "$oid": "686d0cacc11579560826c8ce"
+    },
+    "number": 2,
+    "claimNumber": "2",
+    "status": "submitted",
+    "createdAt": {
+      "$date": "2025-07-11T09:42:25.775Z"
+    },
+    "stickerNumber": "97859-21616-41891",
+    "insurerName": "The Heritage Insurance Company Tanzania Limited",
+    "coverNote": "insurance/coverNotes/1751977141937 - T125ABC.pdf",
+    "vehicleInfo": {
+      "registrationNumber": "T125ABC",
+      "chassisNumber": "GX900028546",
+      "make": "Toyota",
+      "model": "MARKII",
+      "type": "Saloon (closed top)",
+      "color": "Silver",
+      "engineNumber": "1G5967716",
+      "cc": "1988",
+      "seatingCapacity": "5",
+      "manufactureYear": "1993",
+      "ownerName": "HAMADI MASHAKA MZARA",
+      "ownerCategory": "Sole Proprietor",
+      "fuelType": "Petrol"
+    },
+    "clientID": {
+      "$oid": "686d0bf8c11579560826c8cd"
+    },
+    "usedPhoneNumber": "255769333382",
+    "insuranceLabel": "private_car",
+    "claimForm": [
+      {
+        "id": "0de5a214-4199-4cae-b750-bc8ba348018d",
+        "name": "unsure_supplies.txt",
+        "size": 157750,
+        "type": "text/plain",
+        "fileName": "claims/1752227017093 - unsure_supplies.txt"
+      }
+    ],
+    "accidentSketch": [
+      {
+        "id": "17b5faef-02fb-4796-b0b0-ac78751dabfe",
+        "name": "AfriTech Claims Platform Process Flow.pdf",
+        "size": 155195,
+        "type": "application/pdf",
+        "fileName": "claims/1752227056261 - AfriTech Claims Platform Process Flow.pdf"
+      }
+    ],
+    "repairEstimate": [
+      {
+        "id": "dd176eb1-c289-4d65-99f3-4c531485af14",
+        "name": "unsure_supplies.txt",
+        "size": 157750,
+        "type": "text/plain",
+        "fileName": "claims/1752227073252 - unsure_supplies.txt"
+      }
+    ],
+    "driversLicense": [
+      {
+        "id": "5a967f2b-8103-4241-aaf8-d7628423919f",
+        "name": "9c0ba1be-eb30-42d1-8d42-6c1b0d7b6f20.jpg",
+        "size": 53588,
+        "type": "image/jpeg",
+        "fileName": "claims/1752227093881 - 9c0ba1be-eb30-42d1-8d42-6c1b0d7b6f20.jpg"
+      }
+    ],
+    "registrationCard": [
+      {
+        "id": "2f31338a-e809-47eb-8343-89f4c10f8d4c",
+        "name": "all_trucks_readable.txt",
+        "size": 149760,
+        "type": "text/plain",
+        "fileName": "claims/1752227119585 - all_trucks_readable.txt"
+      }
+    ],
+    "photographsDamagedVehicle": [
+      {
+        "id": "fdc34a6a-8566-4268-9593-9aaf7a206a12",
+        "name": "Executive Quote-3.pdf",
+        "size": 79766,
+        "type": "application/pdf",
+        "fileName": "claims/1752227143396 - Executive Quote-3.pdf"
+      }
+    ],
+    "vehicleInspectionReport": [
+      {
+        "id": "1e9c13db-7d16-401c-bec6-e887167ec52a",
+        "name": "dekont-29.pdf",
+        "size": 92826,
+        "type": "application/pdf",
+        "fileName": "claims/1752227168795 - dekont-29.pdf"
+      }
+    ],
+    "preliminaryPoliceReport": [
+      {
+        "id": "64a5580a-426c-4a9c-8e28-70dca5dc1bbe",
+        "name": "dekont-29.pdf",
+        "size": 92826,
+        "type": "application/pdf",
+        "fileName": "claims/1752227185147 - dekont-29.pdf"
+      }
+    ],
+    "finalPoliceReport": [
+      {
+        "id": "1b45b5e6-c6a3-499f-ab95-bd0ade5cf4cd",
+        "name": "47935916 Cover.pdf",
+        "size": 91608,
+        "type": "application/pdf",
+        "fileName": "claims/1752227202094 - 47935916 Cover.pdf"
+      }
+    ],
+    "tPartyInfo": [
+      {
+        "id": "dd496d77-4b73-4c67-9f8a-c682e4200c4d",
+        "name": "unsure_supplies.txt",
+        "size": 157750,
+        "type": "text/plain",
+        "fileName": "claims/1752227219025 - unsure_supplies.txt"
+      }
+    ]
+  },
+  {
+    "_id": { "$oid": "6870dc81c11579560826c8d7" },
+    "policyID": { "$oid": "6893caba544a9ccfe4e4f43b" },
+    "number": 3,
+    "claimNumber": "3",
+    "status": "approved",
+    "createdAt": { "$date": "2025-08-15T14:00:00.000Z" },
+    "stickerNumber": "97859-21616-41892",
+    "insurerName": "Jubilee Insurance Company",
+    "coverNote": "insurance/coverNotes/1751977141938 - T900XYZ.pdf",
+    "vehicleInfo": {
+      "registrationNumber": "T900XYZ",
+      "chassisNumber": "JTEHT05J102030990",
+      "make": "ISUZU",
+      "model": "NPR",
+      "type": "Truck",
+      "color": "White",
+      "engineNumber": "2UZ9062232",
+      "cc": "3000",
+      "seatingCapacity": "2",
+      "manufactureYear": "2022",
+      "ownerName": "ACME LOGISTICS",
+      "ownerCategory": "Company",
+      "fuelType": "Diesel"
+    },
+    "clientID": { "$oid": "6874999ba04daeff8c7f756d" },
+    "usedPhoneNumber": "255700000001",
+    "insuranceLabel": "commercial",
+    "claimForm": [
+      {
+        "id": "0de5a214-4199-4cae-b750-bc8ba348018e",
+        "name": "claim_form.pdf",
+        "size": 157750,
+        "type": "application/pdf",
+        "fileName": "claims/1752227017094 - claim_form.pdf"
+      }
+    ],
+    "accidentSketch": [],
+    "repairEstimate": [],
+    "driversLicense": [],
+    "registrationCard": [],
+    "photographsDamagedVehicle": [],
+    "vehicleInspectionReport": [],
+    "preliminaryPoliceReport": [],
+    "finalPoliceReport": [],
+    "tPartyInfo": [],
+    "amountClaimed": 100000,
+    "amountPaid": 90000
+  },
+  {
+    "_id": { "$oid": "6870dc81c11579560826c8d8" },
+    "policyID": { "$oid": "6893caba544a9ccfe4e4f43c" },
+    "number": 4,
+    "claimNumber": "4",
+    "status": "pending",
+    "createdAt": { "$date": "2025-08-18T16:00:00.000Z" },
+    "stickerNumber": "97859-21616-41893",
+    "insurerName": "Alliance Insurance",
+    "coverNote": "insurance/coverNotes/1751977141939 - T123MOTO.pdf",
+    "vehicleInfo": {
+      "registrationNumber": "T123MOTO",
+      "chassisNumber": "JTEHT05J102030991",
+      "make": "HONDA",
+      "model": "CBF125",
+      "type": "Motorcycle",
+      "color": "Red",
+      "engineNumber": "2UZ9062233",
+      "cc": "125",
+      "seatingCapacity": "1",
+      "manufactureYear": "2023",
+      "ownerName": "JOHN DOE",
+      "ownerCategory": "Individual",
+      "fuelType": "Petrol"
+    },
+    "clientID": { "$oid": "6874999ba04daeff8c7f756e" },
+    "usedPhoneNumber": "255700000002",
+    "insuranceLabel": "motorcycle",
+    "claimForm": [],
+    "accidentSketch": [],
+    "repairEstimate": [],
+    "driversLicense": [],
+    "registrationCard": [],
+    "photographsDamagedVehicle": [],
+    "vehicleInspectionReport": [],
+    "preliminaryPoliceReport": [],
+    "finalPoliceReport": [],
+    "tPartyInfo": [],
+    "amountClaimed": 50000,
+    "amountPaid": 0
+  }
+]

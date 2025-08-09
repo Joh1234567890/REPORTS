@@ -1,0 +1,90 @@
+[
+  {
+    "_id": {
+      "$oid": "6893caba544a9ccfe4e4f43a"
+    },
+    "address": "ILALA MAIN ROAD",
+    "insurerName": "The Heritage Insurance Company Tanzania Limited",
+    "startDate": {
+      "$date": "2025-08-06T21:35:54.742Z"
+    },
+    "endDate": {
+      "$date": "2026-08-05T21:35:54.742Z"
+    },
+    "insuranceLabel": "private_car",
+    "isComprehensive": false,
+    "value": null,
+    "seats": 5,
+    "insuredName": "FAREED SHAABAN SEIF",
+    "platform": "WhatsApp",
+    "vehicleInfo": {
+      "registrationNumber": "T125BAC",
+      "chassisNumber": "JTEHT05J102030989",
+      "make": "Toyota",
+      "model": "JTEHT05J",
+      "type": "Station wagon",
+      "color": "Silver",
+      "engineNumber": "2UZ9062231",
+      "cc": "4686",
+      "seatingCapacity": "5",
+      "manufactureYear": "2002",
+      "ownerName": "FAREED SHAABAN SEIF",
+      "ownerCategory": "Sole Proprietor",
+      "fuelType": "Petrol"
+    },
+    "customerType": "corporate",
+    "idNumber": "140358741",
+    "usedPhoneNumber": "255769333382",
+    "clientID": {
+      "$oid": "6874999ba04daeff8c7f756c"
+    },
+    "paymentMethod": "Mobile Money",
+    "mobileProvider": "M-Pesa",
+    "premium": 100000,
+    "vat": 18000,
+    "total": 118000,
+    "status": "processing",
+    "remark": "Awaiting payment confirmation",
+    "reason": "payment",
+    "createdAt": {
+      "$date": "2025-08-06T21:35:54.742Z"
+    },
+    "deleteAt": {
+      "$date": "2025-08-11T21:35:54.742Z"
+    },
+    "dueNow": 118000,
+    "paymentNumber": "+255765029000",
+    "requestSentAt": {
+      "$date": "2025-08-06T21:35:54.742Z"
+    },
+    "paymentReference": "HIEBM21AW7",
+    "lastPolledAt": {
+      "$date": "2025-08-06T21:40:50.017Z"
+    },
+    "processedAt": {
+      "$date": "2025-08-06T21:40:54.601Z"
+    },
+    "transactionData": {
+      "ReceiptNo": "B100-202507615",
+      "AssuredCode": "CC0042885",
+      "CustomerCode": "CC0042885",
+      "PolicyNo": "P/100/1001/2025/00126",
+      "TaxInvoiceNumber": "DN1002025073",
+      "TaxInvoiceDate": "2025-07-30 17:10:43",
+      "EsdData": "3214",
+      "ZNumber": "3214",
+      "DebitNoteNo": "DN1753424238405",
+      "BrokerCode": "GAL001",
+      "RiskDetails": [
+        {
+          "RegistrationNumber": "T789CBD",
+          "RiskNoteNumber": "R4NVJTN",
+          "TiraStickerNumber": "123-456-789",
+          "TiraCoverNoteReferenceNumber": "123-456-78910"
+        }
+      ]
+    },
+    "coverNote": "insurance/coverNotes/1754516509237 - T125BAC.pdf",
+    "receipt": "insurance/receipts/1754516509237 - T125BAC.pdf"
+  }
+]
