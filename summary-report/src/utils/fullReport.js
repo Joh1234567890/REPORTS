@@ -1,4 +1,19 @@
-// utils/fullReport.js
+/**
+ * Ensures there is enough vertical space on the current PDF page, adds a new page if needed.
+ * @param {PDFDocument} doc - The PDF document instance.
+ * @param {number} [neededHeight=80] - The vertical space required.
+ */
+function ensureSpace(doc, neededHeight = 80) {
+  const bottom = doc.page.height - doc.page.margins.bottom;
+  // Add a new page if not enough space below current position
+  if (doc.y + neededHeight > bottom) {
+    if (doc.y > doc.page.margins.top + 1) {
+      doc.addPage();
+    }
+    // Prevents blank pages if already at top
+  }
+}
+// Main PDF business report generator utilities
 // ---------- Imports ----------
 const dayjs = require("dayjs");
 const isBetween = require("dayjs/plugin/isBetween");
@@ -6,9 +21,25 @@ dayjs.extend(isBetween);
 const chalk = require("chalk");
 const Table = require("cli-table3");
 const PDFDocument = require("pdfkit");
+/**
+ * Registers Lato font variants for PDFKit.
+ */
+PDFDocument.prototype._registerLatoFonts = function () {
+  this.registerFont("Lato", __dirname + "/../fonts/Lato.ttf");
+  this.registerFont("Lato-Bold", __dirname + "/../fonts/Lato-Bold.ttf");
+  this.registerFont("Lato-Light", __dirname + "/../fonts/Lato-Light.ttf");
+};
 const fs = require("fs");
+const { leftMargin, rightMargin, blockSpacing } = require("../constants");
+const {
+  drawPageBorder,
+  addHeritageLogo,
+  addFooter,
+  generateHeader,
+  insideWidth,
+} = require("./pdfLayoutUtils");
 
-// ---------- Utility Functions ----------
+// ---------- General Utility Functions ----------
 /**
  * Safely gets a nested property from an object using a dot-separated path.
  * @param {Object} obj - The object to query.
@@ -82,7 +113,7 @@ function printTable(title, obj) {
   console.log(table.toString());
 }
 
-// ---------- Insurance Policy Metrics ----------
+// ---------- Insurance Policy Metrics Section ----------
 /**
  * Generates insurance policy metrics and prints or returns them.
  * @param {Array} insurances - Insurance records.
@@ -515,91 +546,206 @@ function generateClaimsSection(
   );
 }
 
-// ---------- PDF Export ----------
 /**
- * Exports the full business report to a PDF file.
+ * Exports the full business report to a PDF file, including header, sections, and layout.
  * @param {Object} reportData - The aggregated report data.
  * @param {string} filePath - The output PDF file path.
  */
 function exportReportToPDF(reportData, filePath) {
-  const doc = new PDFDocument({ margin: 40, size: "A4" });
+  const doc = new PDFDocument({
+    size: "A4",
+    margins: {
+      left: leftMargin,
+      right: rightMargin,
+      top: leftMargin,
+      bottom: 40,
+    },
+    bufferPages: true,
+  });
+  doc._registerLatoFonts();
   doc.pipe(fs.createWriteStream(filePath));
 
-  // Header with company info (replace logo path if you have one)
-  // Uncomment and adjust if you have a logo image file
-  // doc.image("path/to/logo.png", 40, 30, { width: 100 });
-  doc
-    .fontSize(11)
-    .font("Helvetica-Bold")
-    .text("The Heritage Insurance Company Tanzania Limited", 40, 50);
+  // --- Report Header: Logo left, address block right ---
+  const {
+    logoPath,
+    coverNoteLogoLeftOffset,
+    coverNoteLogoTopOffset,
+    coverNoteLogoSize,
+    companyAddress,
+    companyBox,
+    companyEmail,
+    companyPhoneNumber,
+  } = require("../constants");
+  const { drawLine } = require("./pdfLayoutUtils"); // drawLine is fine, insideWidth is now top-level
+  let y = 25;
+  // Draw company logo on the left
+  try {
+    doc.image(
+      logoPath,
+      leftMargin + coverNoteLogoLeftOffset,
+      y + coverNoteLogoTopOffset,
+      { width: coverNoteLogoSize }
+    );
+  } catch {}
+  // Draw address and contact info on the right
+  y += 10;
   doc
     .fontSize(9)
-    .font("Helvetica")
-    .text("4th Floor, Bains Avenue, Masaki Ikon", 40, 65);
-  doc.text("P.O. Box 7390 Dar es Salaam, Tanzania", 40, 80);
-  doc.text("info@heritageinsurance.co.tz | +255 222 602 984", 40, 95);
-
-  doc.moveDown(2);
-
-  // Main Title
+    .font("Lato")
+    .text(companyAddress, leftMargin + 220, y, {
+      align: "right",
+      width: insideWidth(doc) - 220,
+    })
+    .text(companyBox, leftMargin + 220, (y += 15), {
+      align: "right",
+      width: insideWidth(doc) - 220,
+    })
+    .text(
+      `${companyEmail} / ${companyPhoneNumber}`,
+      leftMargin + 220,
+      (y += 15),
+      {
+        align: "right",
+        width: insideWidth(doc) - 220,
+      }
+    );
+  // Draw separator line and report title
+  drawLine(doc, (y += 25));
   doc
-    .fontSize(17)
-    .font("Helvetica-Bold")
+    .font("Lato-Bold")
+    .fontSize(16)
     .fillColor("#003366")
-    .text("Full Business Report", { align: "center" });
-  doc.moveDown(1.5);
+    .text("FULL BUSINESS REPORT", leftMargin, (y += 8), {
+      align: "center",
+      width: insideWidth(doc) + 10,
+    })
+    .fillColor("black");
+  drawLine(doc, doc.y + 2);
+  doc.moveDown(1.2);
 
-  // Section title helper
+  // Draw page border for consistent style
+  drawPageBorder(doc);
+
+  // Draw border on every new page and reset doc.y to top margin
+  doc.on("pageAdded", () => {
+    drawPageBorder(doc);
+    doc.y = doc.page.margins.top;
+  });
+  // ...existing code...
+  // No logo at the bottom or footer as per requirements
+
+  /**
+   * Renders a section title with division lines and color styling.
+   * @param {string} title - The section title text.
+   */
+  let sectionCount = 0;
   function printSectionTitle(title) {
-    doc.fontSize(15).font("Helvetica-Bold").fillColor("#003366").text(title);
-    doc.moveDown(0.3);
-    const startX = doc.x;
-    const width =
-      doc.page.width - doc.page.margins.left - doc.page.margins.right;
-    const y = doc.y;
+    ensureSpace(doc, 60);
+    // Add upper division line above metrics sections (not the first section)
+    if (sectionCount > 0) {
+      drawLine(doc, doc.y);
+      doc.moveDown(0.2);
+    }
     doc
-      .strokeColor("#003366")
-      .lineWidth(1.5)
-      .moveTo(startX, y)
-      .lineTo(startX + width, y)
-      .stroke();
-    doc.moveDown(0.8);
-    doc.fillColor("black").font("Helvetica");
+      .fontSize(13)
+      .font("Lato-Bold")
+      .fillColor("#003366")
+      .text(title, leftMargin + 20, doc.y, {
+        align: "center",
+        width: insideWidth(doc),
+      });
+    // Add division line below section title
+    drawLine(doc, doc.y + 2);
+    doc.moveDown(0.7);
+    doc.fillColor("black").font("Lato");
+    sectionCount++;
   }
 
-  // Key-value table helper
-  function printKeyValueTable(data, col1Label = "Category", maxRows = 20) {
+  /**
+   * Renders a two-column key-value table with aligned columns. Dynamic options for usability.
+   * @param {Object} data - The key-value data to display.
+   * @param {string} [col1Label="Category"] - The label for the first column.
+   * @param {number} [maxRows=20] - Maximum number of rows to display.
+   * @param {Object} [options] - Optional table options.
+   * @param {string} [options.col2Label="Count"] - The label for the second column.
+   * @param {number} [options.col1Width] - Width of the first column (px).
+   * @param {number} [options.col2Width] - Width of the second column (px).
+   * @param {number} [options.gap=18] - Gap between columns (px).
+   * @param {string} [options.align1="left"] - Alignment for first column.
+   * @param {string} [options.align2="right"] - Alignment for second column.
+   */
+  function printKeyValueTable(
+    data,
+    col1Label = "Category",
+    maxRows = 20,
+    options = {}
+  ) {
     const entries = Object.entries(data).slice(0, maxRows);
     // Find max key length for padding
     const maxKeyLen = Math.max(
       ...entries.map(([key]) => key.length),
       col1Label.length
     );
+    // Estimate height needed for table
+    const neededHeight = 24 + entries.length * 14;
+    ensureSpace(doc, neededHeight);
+    // Dynamic table options
+    const gap = options.gap !== undefined ? options.gap : 18;
+    const col1Width = options.col1Width || Math.max(80, maxKeyLen * 7 + 10);
+    const col2Width = options.col2Width || 38;
+    const col2Label = options.col2Label || "Count";
+    const align1 = options.align1 || "left";
+    const align2 = options.align2 || "right";
     // Header row
-    doc.font("Courier-Bold");
-    const header = col1Label.padEnd(maxKeyLen + 2, " ") + "Count";
-    doc.text(header);
-    doc.moveDown(0.2);
-    // Data rows
-    doc.font("Courier");
-    entries.forEach(([key, val]) => {
-      const line = key.padEnd(maxKeyLen + 2, " ") + val.toString();
-      doc.text(line);
+    doc.font("Lato-Bold").fontSize(11);
+    const headerY = doc.y;
+    doc.text(col1Label, leftMargin + 20, headerY, {
+      width: col1Width,
+      align: align1,
     });
-    doc.moveDown(1);
+    doc.text(col2Label, leftMargin + 20 + col1Width + gap, headerY, {
+      width: col2Width,
+      align: align2,
+    });
+    doc.moveDown(0.1);
+    // Data rows
+    doc.font("Lato").fontSize(10);
+    entries.forEach(([key, val]) => {
+      ensureSpace(doc, 14);
+      const rowY = doc.y;
+      doc.text(key, leftMargin + 20, rowY, { width: col1Width, align: align1 });
+      doc.text(val.toString(), leftMargin + 20 + col1Width + gap, rowY, {
+        width: col2Width,
+        align: align2,
+      });
+    });
+    doc.moveDown(0.5);
   }
 
   // --- Insurance Section ---
+  doc.moveDown(-0.9); // Move up by 15 units (approx 0.9 lines)
+  ensureSpace(doc, 100);
   printSectionTitle("Insurance Policy Metrics");
-  doc.fontSize(11);
-  doc.text(`Total Policies Issued: ${reportData.insurance.totalPolicies}`);
+  doc.fontSize(10);
   doc.text(
-    `Total Premiums Collected: ${reportData.insurance.totalPremium.toLocaleString()}`
+    `Total Policies Issued: ${reportData.insurance.totalPolicies}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
   doc.text(
-    `Total VAT Collected: ${reportData.insurance.totalVAT.toLocaleString()}`
+    `Total Premiums Collected: ${reportData.insurance.totalPremium.toLocaleString()}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
-  doc.moveDown();
+  doc.text(
+    `Total VAT Collected: ${reportData.insurance.totalVAT.toLocaleString()}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
+  );
+  doc.moveDown(0.5);
 
   printKeyValueTable(reportData.insurance.insuranceTypeCounts, "Type");
   printKeyValueTable(reportData.insurance.policyStatusCounts, "Status");
@@ -612,32 +758,53 @@ function exportReportToPDF(reportData, filePath) {
   printKeyValueTable(reportData.insurance.insurerNameCounts, "Insurer Name");
 
   // --- Quotation Section ---
+  ensureSpace(doc, 100);
   printSectionTitle("Quotation Metrics");
-  doc.fontSize(11);
+  doc.fontSize(10);
   doc.text(
-    `Total Quotations Generated: ${reportData.quotation.totalQuotations}`
+    `Total Quotations Generated: ${reportData.quotation.totalQuotations}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
   doc.text(
-    `Total Quotation Amount: ${reportData.quotation.totalValue.toLocaleString()}`
+    `Total Quotation Amount: ${reportData.quotation.totalValue.toLocaleString()}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
   doc.text(
     `Average Quotation Value: ${Math.round(
       reportData.quotation.avgValue
-    ).toLocaleString()}`
+    ).toLocaleString()}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
   doc.text(
-    `Conversion Rate: ${reportData.quotation.conversionRate.toFixed(2)}%`
+    `Conversion Rate: ${reportData.quotation.conversionRate.toFixed(2)}%`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
   if (reportData.quotation.avgTimeToConversion !== null) {
     doc.text(
       `Average Time to Conversion (days): ${reportData.quotation.avgTimeToConversion.toFixed(
         2
-      )}`
+      )}`,
+      leftMargin + 20,
+      doc.y,
+      { width: insideWidth(doc) }
     );
   } else {
-    doc.text("Average Time to Conversion (days): Not Available");
+    doc.text(
+      "Average Time to Conversion (days): Not Available",
+      leftMargin + 20,
+      doc.y,
+      { width: insideWidth(doc) }
+    );
   }
-  doc.moveDown();
+  doc.moveDown(0.5);
 
   printKeyValueTable(reportData.quotation.sourceCounts, "Source");
   printKeyValueTable(reportData.quotation.platformCounts, "Platform");
@@ -647,32 +814,55 @@ function exportReportToPDF(reportData, filePath) {
   printKeyValueTable(reportData.quotation.reqTypes, "Type");
 
   // --- Claims Section ---
+  ensureSpace(doc, 100);
   printSectionTitle("Claims Metrics");
-  doc.fontSize(11);
-  doc.text(`Total Claims Submitted: ${reportData.claims.totalClaims}`);
+  doc.fontSize(10);
+  doc.text(
+    `Total Claims Submitted: ${reportData.claims.totalClaims}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
+  );
   if (reportData.claims.avgResolveDays !== null) {
     doc.text(
       `Average Time to Resolve (days): ${reportData.claims.avgResolveDays.toFixed(
         2
-      )}`
+      )}`,
+      leftMargin + 20,
+      doc.y,
+      { width: insideWidth(doc) }
     );
   } else {
-    doc.text("Average Time to Resolve (days): Not Available");
+    doc.text(
+      "Average Time to Resolve (days): Not Available",
+      leftMargin + 20,
+      doc.y,
+      { width: insideWidth(doc) }
+    );
   }
   doc.text(
     `Claims Conversion Rate (per policy): ${reportData.claims.conversionRate.toFixed(
       2
-    )}%`
+    )}%`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
   doc.text(
     `Average Files/Documents per Claim: ${reportData.claims.avgFilesPerClaim.toFixed(
       2
-    )}`
+    )}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
   doc.text(
-    `Claims Missing Required Docs: ${reportData.claims.claimsWithMissingDocs}`
+    `Claims Missing Required Docs: ${reportData.claims.claimsWithMissingDocs}`,
+    leftMargin + 20,
+    doc.y,
+    { width: insideWidth(doc) }
   );
-  doc.moveDown();
+  doc.moveDown(0.5);
 
   printKeyValueTable(reportData.claims.statusCounts, "Status");
   printKeyValueTable(reportData.claims.insuranceTypeCounts, "Type");
@@ -684,14 +874,39 @@ function exportReportToPDF(reportData, filePath) {
   printKeyValueTable(reportData.claims.accidentTypeCounts, "Accident Type");
 
   // --- Human-Readable Raw Data Section ---
-  doc.addPage();
+  // Only add a new page if current page has content, and only if page count < 5
+  if (doc.y > doc.page.margins.top + 1 && doc.bufferedPageRange().count < 5) {
+    doc.addPage();
+  }
   doc
-    .fontSize(15)
-    .font("Helvetica-Bold")
+    .fontSize(12)
+    .font("Lato-Bold")
     .fillColor("#003366")
-    .text("Raw Data (Summary)");
-  doc.moveDown(0.5);
+    .text("Raw Data (Summary)", leftMargin + 20, doc.y, {
+      align: "center",
+      width: insideWidth(doc) - 20,
+    });
+  doc.moveDown(0.4);
 
+  // After writing, remove any pages after page 5 (if blank)
+  const pageRange = doc.bufferedPageRange();
+  for (
+    let i = pageRange.start + 5;
+    i < pageRange.start + pageRange.count;
+    i++
+  ) {
+    doc.switchToPage(i);
+    // If the page is blank (y is at top), remove it
+    if (doc.y <= doc.page.margins.top + 1) {
+      doc.removePage(i);
+    }
+  }
+
+  /**
+   * Recursively prints a nested key-value list for summary data.
+   * @param {Object} data - The data object to print.
+   * @param {number} [indent=0] - Indentation level for nested objects.
+   */
   function printKeyValueList(data, indent = 0) {
     const indentStr = " ".repeat(indent * 2);
     const entries = Object.entries(data);
@@ -701,10 +916,10 @@ function exportReportToPDF(reportData, filePath) {
     if (isFlat) {
       // Find max key length for padding
       const maxKeyLen = Math.max(...entries.map(([key]) => key.length));
-      doc.font("Courier-Bold").fontSize(11);
+      doc.font("Lato-Bold").fontSize(11);
       entries.forEach(([key, value]) => {
         const line = indentStr + key.padEnd(maxKeyLen + 2, " ") + String(value);
-        doc.text(line);
+        doc.text(line, leftMargin + 20, doc.y, { width: insideWidth(doc) });
       });
       doc.moveDown(0.5);
     } else {
@@ -717,18 +932,21 @@ function exportReportToPDF(reportData, filePath) {
           Object.values(value).every((v) => typeof v === "number")
         ) {
           // Print label in one line, then aligned table below
-          doc.font("Courier-Bold").fontSize(11).text(`${indentStr}${key}:`);
+          doc.font("Lato-Bold").fontSize(11).text(`${indentStr}${key}:`);
           // Table header
           const subEntries = Object.entries(value);
           const maxKeyLen = Math.max(...subEntries.map(([k]) => k.length), 8);
           const header =
             indentStr + "  " + "Name".padEnd(maxKeyLen + 2, " ") + "Count";
-          doc.font("Courier-Bold").fontSize(10).text(header);
+          doc
+            .font("Lato-Bold")
+            .fontSize(10)
+            .text(header, leftMargin + 20, doc.y, { width: insideWidth(doc) });
           // Table rows
-          doc.font("Courier").fontSize(10);
+          doc.font("Lato").fontSize(10);
           subEntries.forEach(([k, v]) => {
             const line = indentStr + "  " + k.padEnd(maxKeyLen + 2, " ") + v;
-            doc.text(line);
+            doc.text(line, leftMargin + 20, doc.y, { width: insideWidth(doc) });
           });
           doc.moveDown(0.5);
         } else if (
@@ -736,42 +954,53 @@ function exportReportToPDF(reportData, filePath) {
           value !== null &&
           !Array.isArray(value)
         ) {
-          doc.font("Helvetica-Bold").fontSize(11).text(`${indentStr}${key}:`);
+          doc.font("Lato-Bold").fontSize(11).text(`${indentStr}${key}:`);
           printKeyValueList(value, indent + 1);
         } else if (Array.isArray(value)) {
           doc.font("Helvetica-Bold").fontSize(11).text(`${indentStr}${key}:`);
           value.slice(0, 10).forEach((item, idx) => {
             if (typeof item === "object" && item !== null) {
-              doc.font("Helvetica").fontSize(10).text(`${indentStr}  -`);
+              doc.font("Lato").fontSize(10).text(`${indentStr}  -`);
               printKeyValueList(item, indent + 2);
             } else {
-              doc
-                .font("Helvetica")
-                .fontSize(10)
-                .text(`${indentStr}  - ${item}`);
+              doc.font("Lato").fontSize(10).text(`${indentStr}  - ${item}`);
             }
           });
           if (value.length > 10) {
             doc
-              .font("Helvetica-Oblique")
+              .font("Lato-Light")
               .fontSize(10)
               .text(`${indentStr}  ...and ${value.length - 10} more`);
           }
         } else {
-          doc
-            .font("Helvetica")
-            .fontSize(10)
-            .text(`${indentStr}${key}: ${value}`);
+          doc.font("Lato").fontSize(10).text(`${indentStr}${key}: ${value}`);
         }
       }
       doc.moveDown(0.5);
     }
   }
 
+  /**
+   * Prints a section summary with a title and key-value list, styled and centered.
+   * @param {string} title - The summary section title.
+   * @param {Object} data - The summary data object.
+   */
   function printSectionSummary(title, data) {
-    doc.fontSize(11).font("Helvetica-Bold").fillColor("#003366").text(title);
+    // Draw upper division line
+    drawLine(doc, doc.y);
+    doc.moveDown(0.1);
+    doc
+      .fontSize(11)
+      .font("Lato-Bold")
+      .fillColor("#003366")
+      .text(title, leftMargin + 20, doc.y, {
+        align: "center",
+        width: insideWidth(doc) - 20,
+      });
+    // Draw lower division line
+    drawLine(doc, doc.y + 2);
     doc.moveDown(0.2);
-    doc.fontSize(9).font("Helvetica").fillColor("black");
+    doc.fontSize(9).font("Lato").fillColor("black");
     printKeyValueList(data);
     doc.moveDown(0.8);
   }
@@ -781,33 +1010,12 @@ function exportReportToPDF(reportData, filePath) {
   printSectionSummary("Claims Data Summary", reportData.claims);
 
   // Footer with page numbers and date/time (fix: use correct buffered page range)
-  const range = doc.bufferedPageRange();
-  for (let i = range.start; i < range.start + range.count; i++) {
-    doc.switchToPage(i);
-    doc
-      .fontSize(7)
-      .fillColor("gray")
-      .text(
-        `Page ${i + 1} of ${range.count}`,
-        doc.page.width - doc.page.margins.right - 100,
-        doc.page.height - 30,
-        { align: "right" }
-      );
-    const currentDate = new Date().toLocaleString();
-    doc.text(
-      `Generated: ${currentDate}`,
-      doc.page.margins.left,
-      doc.page.height - 30,
-      {
-        align: "left",
-      }
-    );
-  }
+  // Removed page number/footer rendering as requested
 
   doc.end();
 }
 
-// ---------- Unified Full Report ----------
+// ---------- Unified Full Report Entry Point ----------
 /**
  * Generates the full business report, prints to CLI, and exports to PDF.
  * @param {Array} insurances - Insurance records.
