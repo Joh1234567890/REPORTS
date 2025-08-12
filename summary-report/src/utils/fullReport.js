@@ -37,6 +37,7 @@ const {
   addFooter,
   generateHeader,
   insideWidth,
+  drawWideLeftTable,
 } = require("./pdfLayoutUtils");
 
 // ---------- General Utility Functions ----------
@@ -611,15 +612,18 @@ function exportReportToPDF(reportData, filePath) {
     );
   // Draw separator line and report title
   drawLine(doc, (y += 25));
+  // Move FULL BUSINESS REPORT up by 5 units
+  y += 3;
   doc
     .font("Lato-Bold")
     .fontSize(16)
     .fillColor("#003366")
-    .text("FULL BUSINESS REPORT", leftMargin, (y += 8), {
+    .text("FULL BUSINESS REPORT", leftMargin, y, {
       align: "center",
-      width: insideWidth(doc) + 10,
+      width: insideWidth(doc),
     })
     .fillColor("black");
+  // Only one division line below the main title
   drawLine(doc, doc.y + 2);
   doc.moveDown(1.2);
 
@@ -641,21 +645,28 @@ function exportReportToPDF(reportData, filePath) {
   let sectionCount = 0;
   function printSectionTitle(title) {
     ensureSpace(doc, 60);
-    // Add upper division line above metrics sections (not the first section)
+    // Always draw a single division line above the section title
     if (sectionCount > 0) {
       drawLine(doc, doc.y);
+      // Minimal space after the line for tight grouping
       doc.moveDown(0.2);
     }
+    // Move Insurance Policy Metrics down by 5 units
+    if (title === "Insurance Policy Metrics") {
+      doc.moveDown(0.5);
+    }
+    // Draw the title close to the line
+    const titleFontSize = 13;
+    const yTitle = doc.y;
     doc
-      .fontSize(13)
+      .fontSize(titleFontSize)
       .font("Lato-Bold")
-      .fillColor("#003366")
-      .text(title, leftMargin + 20, doc.y, {
+      .fillColor("black")
+      .text(title, leftMargin, yTitle, {
         align: "center",
         width: insideWidth(doc),
       });
-    // Add division line below section title
-    drawLine(doc, doc.y + 2);
+    // Add a bit more space after the title for visual balance
     doc.moveDown(0.7);
     doc.fillColor("black").font("Lato");
     sectionCount++;
@@ -723,184 +734,278 @@ function exportReportToPDF(reportData, filePath) {
   }
 
   // --- Insurance Section ---
-  doc.moveDown(-0.9); // Move up by 15 units (approx 0.9 lines)
+  doc.moveDown(-0.9);
   ensureSpace(doc, 100);
   printSectionTitle("Insurance Policy Metrics");
-  doc.fontSize(10);
-  doc.text(
-    `Total Policies Issued: ${reportData.insurance.totalPolicies}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.text(
-    `Total Premiums Collected: ${reportData.insurance.totalPremium.toLocaleString()}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.text(
-    `Total VAT Collected: ${reportData.insurance.totalVAT.toLocaleString()}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.moveDown(0.5);
+  // Render summary metrics as a wide-left table
+  const insuranceSummaryRows = [
+    {
+      label: "Total Policies Issued",
+      value: reportData.insurance.totalPolicies,
+    },
+    {
+      label: "Total Premiums Collected",
+      value: reportData.insurance.totalPremium.toLocaleString(),
+    },
+    {
+      label: "Total VAT Collected",
+      value: reportData.insurance.totalVAT.toLocaleString(),
+    },
+  ];
+  drawWideLeftTable(doc, insuranceSummaryRows, "Metric", "Value");
+  doc.moveDown(1.2); // Increased spacing after summary table
 
-  printKeyValueTable(reportData.insurance.insuranceTypeCounts, "Type");
-  printKeyValueTable(reportData.insurance.policyStatusCounts, "Status");
-  printKeyValueTable(reportData.insurance.platformCounts, "Platform");
-  printKeyValueTable(
-    reportData.insurance.paymentMethodCounts,
-    "Payment Method"
-  );
-  printKeyValueTable(reportData.insurance.customerTypeCounts, "Customer Type");
-  printKeyValueTable(reportData.insurance.insurerNameCounts, "Insurer Name");
+  // Render type/count tables using wide-left table style
+  const typeTables = [
+    {
+      data: reportData.insurance.insuranceTypeCounts,
+      label: "Type Count",
+      col1: "Type",
+      col2: "Count",
+    },
+    {
+      data: reportData.insurance.policyStatusCounts,
+      label: "Status Count",
+      col1: "Status",
+      col2: "Count",
+    },
+    {
+      data: reportData.insurance.platformCounts,
+      label: "Platform Count",
+      col1: "Platform",
+      col2: "Count",
+    },
+    {
+      data: reportData.insurance.paymentMethodCounts,
+      label: "Payment Method Count",
+      col1: "Payment Method",
+      col2: "Count",
+    },
+    {
+      data: reportData.insurance.customerTypeCounts,
+      label: "Customer Type Count",
+      col1: "Customer Type",
+      col2: "Count",
+    },
+    {
+      data: reportData.insurance.insurerNameCounts,
+      label: "Insurer Name Count",
+      col1: "Insurer Name",
+      col2: "Count",
+    },
+  ];
+  typeTables.forEach(({ data, label, col1, col2 }) => {
+    if (data && Object.keys(data).length > 0) {
+      doc.moveDown(1.0); // More space before each table group
+      doc
+        .font("Lato-Bold")
+        .fontSize(11)
+        .text(label, leftMargin, doc.y, {
+          width: insideWidth(doc),
+          align: "center",
+        });
+      doc.moveDown(0.3);
+      const rows = Object.entries(data).map(([k, v]) => ({
+        label: k,
+        value: v,
+      }));
+      drawWideLeftTable(doc, rows, col1, col2);
+      doc.moveDown(0.7); // More space after each table
+    }
+  });
 
   // --- Quotation Section ---
   ensureSpace(doc, 100);
   printSectionTitle("Quotation Metrics");
-  doc.fontSize(10);
-  doc.text(
-    `Total Quotations Generated: ${reportData.quotation.totalQuotations}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.text(
-    `Total Quotation Amount: ${reportData.quotation.totalValue.toLocaleString()}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.text(
-    `Average Quotation Value: ${Math.round(
-      reportData.quotation.avgValue
-    ).toLocaleString()}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.text(
-    `Conversion Rate: ${reportData.quotation.conversionRate.toFixed(2)}%`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  if (reportData.quotation.avgTimeToConversion !== null) {
-    doc.text(
-      `Average Time to Conversion (days): ${reportData.quotation.avgTimeToConversion.toFixed(
-        2
-      )}`,
-      leftMargin + 20,
-      doc.y,
-      { width: insideWidth(doc) }
-    );
-  } else {
-    doc.text(
-      "Average Time to Conversion (days): Not Available",
-      leftMargin + 20,
-      doc.y,
-      { width: insideWidth(doc) }
-    );
-  }
-  doc.moveDown(0.5);
+  // Render summary metrics as a wide-left table
+  const quotationSummaryRows = [
+    {
+      label: "Total Quotations Generated",
+      value: reportData.quotation.totalQuotations,
+    },
+    {
+      label: "Total Quotation Amount",
+      value: reportData.quotation.totalValue.toLocaleString(),
+    },
+    {
+      label: "Average Quotation Value",
+      value: Math.round(reportData.quotation.avgValue).toLocaleString(),
+    },
+    {
+      label: "Conversion Rate",
+      value: reportData.quotation.conversionRate.toFixed(2) + "%",
+    },
+    {
+      label: "Average Time to Conversion (days)",
+      value:
+        reportData.quotation.avgTimeToConversion !== null
+          ? reportData.quotation.avgTimeToConversion.toFixed(2)
+          : "Not Available",
+    },
+  ];
+  drawWideLeftTable(doc, quotationSummaryRows, "Metric", "Value");
+  doc.moveDown(1.2);
 
-  printKeyValueTable(reportData.quotation.sourceCounts, "Source");
-  printKeyValueTable(reportData.quotation.platformCounts, "Platform");
-  printKeyValueTable(reportData.quotation.customerTypeCounts, "Customer Type");
-  printKeyValueTable(reportData.quotation.statusCounts, "Status");
-  printKeyValueTable(reportData.quotation.reqVehicles, "Vehicle");
-  printKeyValueTable(reportData.quotation.reqTypes, "Type");
+  // Render type/count tables using wide-left table style
+  const quotationTypeTables = [
+    {
+      data: reportData.quotation.sourceCounts,
+      label: "Source Count",
+      col1: "Source",
+      col2: "Count",
+    },
+    {
+      data: reportData.quotation.platformCounts,
+      label: "Platform Count",
+      col1: "Platform",
+      col2: "Count",
+    },
+    {
+      data: reportData.quotation.customerTypeCounts,
+      label: "Customer Type Count",
+      col1: "Customer Type",
+      col2: "Count",
+    },
+    {
+      data: reportData.quotation.statusCounts,
+      label: "Status Count",
+      col1: "Status",
+      col2: "Count",
+    },
+    {
+      data: reportData.quotation.reqVehicles,
+      label: "Vehicle Count",
+      col1: "Vehicle",
+      col2: "Count",
+    },
+    {
+      data: reportData.quotation.reqTypes,
+      label: "Type Count",
+      col1: "Type",
+      col2: "Count",
+    },
+  ];
+  quotationTypeTables.forEach(({ data, label, col1, col2 }) => {
+    if (data && Object.keys(data).length > 0) {
+      doc.moveDown(1.0);
+      doc
+        .font("Lato-Bold")
+        .fontSize(11)
+        .text(label, leftMargin, doc.y, {
+          width: insideWidth(doc),
+          align: "center",
+        });
+      doc.moveDown(0.3);
+      const rows = Object.entries(data).map(([k, v]) => ({
+        label: k,
+        value: v,
+      }));
+      drawWideLeftTable(doc, rows, col1, col2);
+      doc.moveDown(0.7);
+    }
+  });
 
   // --- Claims Section ---
   ensureSpace(doc, 100);
   printSectionTitle("Claims Metrics");
-  doc.fontSize(10);
-  doc.text(
-    `Total Claims Submitted: ${reportData.claims.totalClaims}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  if (reportData.claims.avgResolveDays !== null) {
-    doc.text(
-      `Average Time to Resolve (days): ${reportData.claims.avgResolveDays.toFixed(
-        2
-      )}`,
-      leftMargin + 20,
-      doc.y,
-      { width: insideWidth(doc) }
-    );
-  } else {
-    doc.text(
-      "Average Time to Resolve (days): Not Available",
-      leftMargin + 20,
-      doc.y,
-      { width: insideWidth(doc) }
-    );
-  }
-  doc.text(
-    `Claims Conversion Rate (per policy): ${reportData.claims.conversionRate.toFixed(
-      2
-    )}%`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.text(
-    `Average Files/Documents per Claim: ${reportData.claims.avgFilesPerClaim.toFixed(
-      2
-    )}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.text(
-    `Claims Missing Required Docs: ${reportData.claims.claimsWithMissingDocs}`,
-    leftMargin + 20,
-    doc.y,
-    { width: insideWidth(doc) }
-  );
-  doc.moveDown(0.5);
+  // Render summary metrics as a wide-left table
+  const claimsSummaryRows = [
+    { label: "Total Claims Submitted", value: reportData.claims.totalClaims },
+    {
+      label: "Average Time to Resolve (days)",
+      value:
+        reportData.claims.avgResolveDays !== null
+          ? reportData.claims.avgResolveDays.toFixed(2)
+          : "Not Available",
+    },
+    {
+      label: "Claims Conversion Rate (per policy)",
+      value: reportData.claims.conversionRate.toFixed(2) + "%",
+    },
+    {
+      label: "Average Files/Documents per Claim",
+      value: reportData.claims.avgFilesPerClaim.toFixed(2),
+    },
+    {
+      label: "Claims Missing Required Docs",
+      value: reportData.claims.claimsWithMissingDocs,
+    },
+  ];
+  drawWideLeftTable(doc, claimsSummaryRows, "Metric", "Value");
+  doc.moveDown(1.2);
 
-  printKeyValueTable(reportData.claims.statusCounts, "Status");
-  printKeyValueTable(reportData.claims.insuranceTypeCounts, "Type");
-  printKeyValueTable(reportData.claims.vehicleCounts, "Vehicle");
-  printKeyValueTable(reportData.claims.insurerNameCounts, "Insurer Name");
-  printKeyValueTable(reportData.claims.reasonCounts, "Reason");
-  printKeyValueTable(reportData.claims.claimsPerCustomer, "Customer");
-  printKeyValueTable(reportData.claims.claimsPerPolicy, "Policy");
-  printKeyValueTable(reportData.claims.accidentTypeCounts, "Accident Type");
-
-  // --- Human-Readable Raw Data Section ---
-  // Only add a new page if current page has content, and only if page count < 5
-  if (doc.y > doc.page.margins.top + 1 && doc.bufferedPageRange().count < 5) {
-    doc.addPage();
-  }
-  doc
-    .fontSize(12)
-    .font("Lato-Bold")
-    .fillColor("#003366")
-    .text("Raw Data (Summary)", leftMargin + 20, doc.y, {
-      align: "center",
-      width: insideWidth(doc) - 20,
-    });
-  doc.moveDown(0.4);
-
-  // After writing, remove any pages after page 5 (if blank)
-  const pageRange = doc.bufferedPageRange();
-  for (
-    let i = pageRange.start + 5;
-    i < pageRange.start + pageRange.count;
-    i++
-  ) {
-    doc.switchToPage(i);
-    // If the page is blank (y is at top), remove it
-    if (doc.y <= doc.page.margins.top + 1) {
-      doc.removePage(i);
+  // Render type/count tables using wide-left table style
+  const claimsTypeTables = [
+    {
+      data: reportData.claims.statusCounts,
+      label: "Status Count",
+      col1: "Status",
+      col2: "Count",
+    },
+    {
+      data: reportData.claims.insuranceTypeCounts,
+      label: "Type Count",
+      col1: "Type",
+      col2: "Count",
+    },
+    {
+      data: reportData.claims.vehicleCounts,
+      label: "Vehicle Count",
+      col1: "Vehicle",
+      col2: "Count",
+    },
+    {
+      data: reportData.claims.insurerNameCounts,
+      label: "Insurer Name Count",
+      col1: "Insurer Name",
+      col2: "Count",
+    },
+    {
+      data: reportData.claims.reasonCounts,
+      label: "Reason Count",
+      col1: "Reason",
+      col2: "Count",
+    },
+    {
+      data: reportData.claims.claimsPerCustomer,
+      label: "Claims Per Customer",
+      col1: "Customer",
+      col2: "Count",
+    },
+    {
+      data: reportData.claims.claimsPerPolicy,
+      label: "Claims Per Policy",
+      col1: "Policy",
+      col2: "Count",
+    },
+    {
+      data: reportData.claims.accidentTypeCounts,
+      label: "Accident Type Count",
+      col1: "Accident Type",
+      col2: "Count",
+    },
+  ];
+  claimsTypeTables.forEach(({ data, label, col1, col2 }) => {
+    if (data && Object.keys(data).length > 0) {
+      doc.moveDown(1.0);
+      doc
+        .font("Lato-Bold")
+        .fontSize(11)
+        .text(label, leftMargin, doc.y, {
+          width: insideWidth(doc),
+          align: "center",
+        });
+      doc.moveDown(0.3);
+      const rows = Object.entries(data).map(([k, v]) => ({
+        label: k,
+        value: v,
+      }));
+      drawWideLeftTable(doc, rows, col1, col2);
+      doc.moveDown(0.7);
     }
-  }
+  });
+
+  // Raw Data (Summary) section removed as requested.
 
   /**
    * Recursively prints a nested key-value list for summary data.
@@ -1005,10 +1110,6 @@ function exportReportToPDF(reportData, filePath) {
     doc.moveDown(0.8);
   }
 
-  printSectionSummary("Insurance Data Summary", reportData.insurance);
-  printSectionSummary("Quotation Data Summary", reportData.quotation);
-  printSectionSummary("Claims Data Summary", reportData.claims);
-
   // Footer with page numbers and date/time (fix: use correct buffered page range)
   // Removed page number/footer rendering as requested
 
@@ -1078,10 +1179,95 @@ function generateFullReport(
 }
 
 // ---------- Module Exports ----------
+
+/**
+ * Generates the full business report, prints to CLI, and exports to PDF.
+ * This is the main entry point for generating the business report.
+ *
+ * @function generateFullReport
+ * @param {Array<Object>} insurances - Array of insurance policy records.
+ * @param {Array<Object>} quotations - Array of quotation records.
+ * @param {Array<Object>} claims - Array of claim records.
+ * @param {string|Date} startDate - Start date for the report (inclusive).
+ * @param {string|Date} endDate - End date for the report (inclusive).
+ * @returns {Object} Aggregated report data for all sections.
+ *
+ * @example
+ * const { generateFullReport } = require('./fullReport');
+ * generateFullReport(insurances, quotations, claims, '2024-01-01', '2024-12-31');
+ */
+
+/**
+ * Exports the full business report to a PDF file, including header, sections, and layout.
+ *
+ * @function exportReportToPDF
+ * @param {Object} reportData - The aggregated report data (from generateFullReport).
+ * @param {string} filePath - The output PDF file path.
+ *
+ * @example
+ * const { exportReportToPDF } = require('./fullReport');
+ * exportReportToPDF(reportData, 'Full_Report.pdf');
+ */
+
+/**
+ * Generates insurance policy metrics and prints or returns them.
+ *
+ * @function generateInsuranceSection
+ * @param {Array<Object>} insurances - Array of insurance policy records.
+ * @param {string|Date} startDate - Start date for filtering (inclusive).
+ * @param {string|Date} endDate - End date for filtering (inclusive).
+ * @param {boolean} [isRaw=false] - If true, returns raw data instead of printing.
+ * @returns {Object|undefined} Metrics object if isRaw is true, otherwise undefined.
+ */
+
+/**
+ * Generates quotation metrics and prints or returns them.
+ *
+ * @function generateQuotationSection
+ * @param {Array<Object>} quotations - Array of quotation records.
+ * @param {Array<Object>} policies - Array of policy records (for conversion rate).
+ * @param {string|Date} startDate - Start date for filtering (inclusive).
+ * @param {string|Date} endDate - End date for filtering (inclusive).
+ * @param {boolean} [isRaw=false] - If true, returns raw data instead of printing.
+ * @returns {Object|undefined} Metrics object if isRaw is true, otherwise undefined.
+ */
+
+/**
+ * Generates claims metrics and prints or returns them.
+ *
+ * @function generateClaimsSection
+ * @param {Array<Object>} claims - Array of claim records.
+ * @param {Array<Object>} policies - Array of policy records (for conversion rate).
+ * @param {string|Date} startDate - Start date for filtering (inclusive).
+ * @param {string|Date} endDate - End date for filtering (inclusive).
+ * @param {boolean} [isRaw=false] - If true, returns raw data instead of printing.
+ * @returns {Object|undefined} Metrics object if isRaw is true, otherwise undefined.
+ */
+
 module.exports = {
+  /**
+   * Main entry point for generating the full business report.
+   * @see generateFullReport
+   */
   generateFullReport,
+  /**
+   * Export the aggregated report data to a PDF file.
+   * @see exportReportToPDF
+   */
   exportReportToPDF,
+  /**
+   * Generate insurance policy metrics for a given date range.
+   * @see generateInsuranceSection
+   */
   generateInsuranceSection,
+  /**
+   * Generate quotation metrics for a given date range.
+   * @see generateQuotationSection
+   */
   generateQuotationSection,
+  /**
+   * Generate claims metrics for a given date range.
+   * @see generateClaimsSection
+   */
   generateClaimsSection,
 };

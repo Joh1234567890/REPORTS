@@ -1,3 +1,91 @@
+/**
+ * Draws a two-column table with a wide left column (label) and narrow right column (value),
+ * with a bold header row and visible borders, similar to the premium payment table in tax invoice.
+ * @param {PDFDocument} doc - The PDF document instance
+ * @param {Array<{label: string, value: string|number}>} rows - Array of row objects
+ * @param {string} leftHeader - Header for the left column
+ * @param {string} rightHeader - Header for the right column
+ * @param {number} [y] - Optional Y position to start drawing (defaults to doc.y)
+ * @param {Object} [options] - Optional config: { col1Width, col2Width, gap }
+ * @returns {number} The Y position after drawing the table
+ *
+ * @example
+ * // Usage:
+ * drawWideLeftTable(doc, [
+ *   { label: 'Type A', value: 10 },
+ *   { label: 'Type B', value: 5 }
+ * ], 'Type', 'Count');
+ */
+function drawWideLeftTable(
+  doc,
+  rows,
+  leftHeader,
+  rightHeader,
+  y,
+  options = {}
+) {
+  // Table stretches from leftMargin to page width - rightMargin
+  const startY = y !== undefined ? y : doc.y;
+  const tableX = leftMargin;
+  const tableWidth = doc.page.width - leftMargin - rightMargin;
+  // 2 columns: left (label) is 75%, right (value) is 25%
+  const col1Width = Math.floor(tableWidth * 0.75);
+  const col2Width = tableWidth - col1Width;
+  const rowHeight = 18;
+  const headerHeight = 20;
+  let currentY = startY;
+  const bottom = doc.page.height - doc.page.margins.bottom;
+
+  // Helper to draw header row (left/right aligned as before)
+  function drawHeader(yPos) {
+    doc.font("Lato-Bold").fontSize(10);
+    doc.rect(tableX, yPos, col1Width, headerHeight).stroke();
+    doc.rect(tableX + col1Width, yPos, col2Width, headerHeight).stroke();
+    doc.text(leftHeader, tableX + 8, yPos + 5, {
+      width: col1Width - 16,
+      align: "left",
+    });
+    doc.text(rightHeader, tableX + col1Width + 8, yPos + 5, {
+      width: col2Width - 16,
+      align: "right",
+    });
+  }
+
+  // Draw header row (bordered)
+  drawHeader(currentY);
+  currentY += headerHeight;
+
+  // Draw data rows (bordered), with page break if needed
+  doc.font("Lato").fontSize(10);
+  for (let i = 0; i < rows.length; i++) {
+    // If not enough space for row + bottom border, add page and redraw header
+    if (currentY + rowHeight + 10 > bottom) {
+      doc.addPage();
+      currentY = doc.page.margins.top;
+      drawHeader(currentY);
+      currentY += headerHeight;
+    }
+    const { label, value } = rows[i];
+    doc.rect(tableX, currentY, col1Width, rowHeight).stroke();
+    doc.rect(tableX + col1Width, currentY, col2Width, rowHeight).stroke();
+    doc.text(label, tableX + 8, currentY + 4, {
+      width: col1Width - 16,
+      align: "left",
+    });
+    doc.text(String(value), tableX + col1Width + 8, currentY + 4, {
+      width: col2Width - 16,
+      align: "right",
+    });
+    currentY += rowHeight;
+  }
+  // Draw bottom border
+  doc
+    .moveTo(tableX, currentY)
+    .lineTo(tableX + tableWidth, currentY)
+    .stroke();
+  return currentY + 4;
+}
+
 // pdfLayoutUtils.js
 // Shared PDF layout and branding utilities for receipts and reports
 
@@ -17,16 +105,31 @@ const {
   blockSpacing,
 } = require("../constants");
 
-// Calculates the inside width of the document excluding margins
+/**
+ * Calculates the inside width of the document excluding margins.
+ * @param {PDFDocument} doc - The PDF document instance.
+ * @returns {number} The usable width inside margins.
+ */
 const insideWidth = (doc) => doc.page.width - (leftMargin + rightMargin + 10);
 
-// Calculates the maximum height available on the page
+/**
+ * Calculates the maximum height available on the page.
+ * @param {PDFDocument} doc - The PDF document instance.
+ * @returns {number} The usable height for content.
+ */
 const maxHeight = (doc) => doc.page.height - 60;
 
-// Calculates the center position for logo placement
+/**
+ * Calculates the center position for logo placement.
+ * @param {PDFDocument} doc - The PDF document instance.
+ * @returns {number} The X coordinate for centered logo.
+ */
 const logoCenter = (doc) => (doc.page.width - coverNoteLogoSize) / 2;
 
-// Register Lato fonts for consistent usage
+/**
+ * Registers Lato fonts for consistent usage in the PDF.
+ * @param {PDFDocument} doc - The PDF document instance.
+ */
 function registerSharedFonts(doc) {
   if (!doc._latoFontsRegistered) {
     doc.registerFont("Normal", __dirname + "/../fonts/Lato.ttf");
@@ -35,7 +138,11 @@ function registerSharedFonts(doc) {
   }
 }
 
-// Draws a horizontal line across the page width
+/**
+ * Draws a horizontal line across the page width at position y.
+ * @param {PDFDocument} doc - The PDF document instance.
+ * @param {number} y - Y position to draw the line.
+ */
 function drawLine(doc, y) {
   doc
     .strokeColor("black")
@@ -45,9 +152,11 @@ function drawLine(doc, y) {
     .stroke();
 }
 
-// Draws a border frame around the entire page content area
+/**
+ * Draws a border frame around the entire page content area.
+ * @param {PDFDocument} doc - The PDF document instance.
+ */
 function drawPageBorder(doc) {
-  // Use left/right/top margins for the border, bottom margin can be different
   const { left, right, top, bottom } = doc.page.margins;
   doc
     .rect(
@@ -60,7 +169,10 @@ function drawPageBorder(doc) {
     .stroke();
 }
 
-// Adds a company logo to any space left at the bottom of the page
+/**
+ * Adds a company logo to any space left at the bottom of the page.
+ * @param {PDFDocument} doc - The PDF document instance.
+ */
 function addHeritageLogo(doc) {
   let valueFromTop = doc.y;
   if (valueFromTop > 725) {
@@ -83,7 +195,12 @@ function addHeritageLogo(doc) {
   }
 }
 
-// Adds footer information to all pages including page numbers and generation details
+/**
+ * Adds footer information to all pages including page numbers and generation details.
+ * @param {PDFDocument} doc - The PDF document instance.
+ * @param {Date} date - Generation date for the document.
+ * @param {string} platform - Platform used to generate the document.
+ */
 function addFooter(doc, date, platform) {
   const pages = doc.bufferedPageRange();
   for (let i = 0; i < pages.count; i++) {
@@ -103,7 +220,13 @@ function addFooter(doc, date, platform) {
   }
 }
 
-// Generates the document header with company information, title, and tax details
+/**
+ * Generates the document header with company information, title, and tax details.
+ * @param {PDFDocument} doc - The PDF document instance.
+ * @param {string} receiptNumber - The receipt or report number.
+ * @param {string} [title="RECEIPT"] - The document title.
+ * @returns {number} The Y position after drawing the header.
+ */
 function generateHeader(doc, receiptNumber, title = "RECEIPT") {
   registerSharedFonts(doc);
   let y = 25;
@@ -171,4 +294,5 @@ module.exports = {
   addFooter,
   generateHeader,
   registerSharedFonts,
+  drawWideLeftTable,
 };
